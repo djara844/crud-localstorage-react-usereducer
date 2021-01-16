@@ -1,25 +1,54 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useReducer, useState } from "react";
 
-function App() {
+import { userReducer } from "./hooks/userReducer";
+import { useForm as useFormAdd } from "./hooks/useFormAdd";
+import TableUsers from "./components/TableUsers";
+import CreateUser from "./components/CreateUser";
+
+const init =
+  localStorage.getItem("users") !== null
+    ? JSON.parse(localStorage.getItem("users"))
+    : [];
+
+const App = () => {
+  const [users, dispatch] = useReducer(userReducer, init);
+
+  useEffect(() => {
+    localStorage.setItem("users", JSON.stringify(users));
+  }, [users]);
+
+  const [formValues, setFormValues] = useState({
+    id: "",
+    name: "",
+    email: "",
+  });
+
+  const [valuesInputs, setValuesInputs] = useState({
+    inputName: "",
+    inputEmail: "",
+  });
+
+  const { handleSubmit, handleChange } = useFormAdd(
+    formValues,
+    dispatch,
+    setFormValues
+  );
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="container mt-5">
+      <TableUsers
+        users={users}
+        valuesInputs={valuesInputs}
+        setValuesInputs={setValuesInputs}
+        dispatch={dispatch}
+      />
+      <CreateUser
+        formValues={formValues}
+        handleSubmit={handleSubmit}
+        handleChange={handleChange}
+      />
     </div>
   );
-}
+};
 
 export default App;
